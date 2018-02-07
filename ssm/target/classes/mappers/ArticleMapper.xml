@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+_parameter 表示当前传入的参数，如果查询的时候传入的参数只有一个，则使用 _parameter
+_parameter.name 如果查询的时候传入的参数是个对象，那就点属性
+
+-->
+
+<mapper namespace="com.tanyouping.ssm.mapper.ArticleMapper">
+
+    <resultMap id="Article" type="com.tanyouping.ssm.model.Article">
+        <id column="id_" property="id"/>
+        <result column="created_" property="created"/>
+        <result column="createdMillisecond_" property="createdMillisecond"/>
+        <result column="text_" property="text"/>
+        <result column="tags_" property="tags"/>
+        <result column="status_" property="status"/>
+
+        <association property="blog" javaType="com.tanyouping.ssm.model.Blog">
+            <id column="id_" property="id"/>
+            <result column="created_" property="created"/>
+            <result column="createdMillisecond_" property="createdMillisecond"/>
+            <result column="name_" property="name"/>
+            <result column="sex_" property="sex"/>
+            <result column="mobile_" property="mobile"/>
+            <result column="email_" property="email"/>
+            <result column="remark_" property="remark"/>
+            <result column="status_" property="status"/>
+        </association>
+
+    </resultMap>
+
+    <resultMap id="ArticleCustom" type="com.tanyouping.ssm.po.ArticleCustom">
+        <id column="id_" property="id"/>
+        <result column="created_" property="created"/>
+        <result column="createdMillisecond_" property="createdMillisecond"/>
+        <result column="text_" property="text"/>
+        <result column="tags_" property="tags"/>
+        <result column="status_" property="status"/>
+        <result column="name_" property="name"/>
+    </resultMap>
+    
+    <!-- 内链接 -->
+    <select id="articles" parameterType="java.lang.Integer" resultMap="Article">
+
+        SELECT b_article.*,b_blog.name_ FROM b_article,b_blog WHERE b_article.blog_id = b_blog.id_
+
+    </select>
+
+    <insert id="saveArticle" parameterType="com.tanyouping.ssm.model.Article">
+        <!--
+            将插入的主键返回,返回到Article对象中
+            SELECT LAST_INSERT_ID(): 得到刚INSERT进去的记录的主键值，只适用于自增主键
+            keyProperty：将查询到的主键值设置到parameterType指定的对象的哪个属性
+            order：SELECT LAST_INSERT_ID()执行顺序，相对于INSERT语句来说它的执行顺序
+            resultType：指定SELECT LAST_INSERT_ID()的结果类型
+        -->
+
+        <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO b_article
+          (text_,tags_,status_,blog_id,created_,createdMillisecond_)
+        VALUE
+          (#{text},#{tags},#{status},#{blogId},#{created},#{createdMillisecond})
+
+    </insert>
+
+    <select id="selectArticle" parameterType="com.tanyouping.ssm.param.ArticleQueryParam" resultMap="Article">
+
+        <bind name="pattern" value="'%' + _parameter.name + '%'" />
+        SELECT * FROM b_article
+        <where>
+            <if test="id != null">
+                AND id_ = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND name LIKE #{pattern}
+            </if>
+
+            <choose>
+
+                <when test="startCreated != null and endCreated != null">
+                    AND created_ BETWEEN #{startCreated} AND #{endCreated}
+                </when>
+
+                <when test="startCreated != null">
+                    AND created_ gt #{startCreated}
+                </when>
+
+                <when test="endCreated != null">
+                    AND created_ lt #{endCreated}
+                </when>
+
+                <otherwise>
+                    AND 1=1
+                </otherwise>
+
+            </choose>
+
+        </where>
+
+    </select>
+
+    <select id="getArticle" parameterType="java.lang.Integer" resultMap="Article">
+
+        SELECT * FROM b_article WHERE id_ = #{id}
+
+    </select>
+
+
+    <delete id="removeArticle" parameterType="java.lang.Integer">
+
+        DELETE FROM b_article WHERE id_ = #{id}
+
+    </delete>
+
+    <update id="updateArticle" parameterType="com.tanyouping.ssm.model.Article">
+
+        UPDATE b_article SET name_ = #{name} , sex_ = #{sex} , mobile_ = #{mobile} , email_ = #{email} , remark_ = #{remark} WHERE id_ = #{id}
+
+    </update>
+
+</mapper>
+
+<!--<mapper namespace="Article">-->
+    <!--<select id="selectArticle" parameterType="int" resultType="com.tanyouping.ssm.model.Article">-->
+        <!--select * from Article where id = #{id}-->
+    <!--</select>-->
+<!--</mapper>-->
