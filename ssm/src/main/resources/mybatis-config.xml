@@ -27,9 +27,9 @@
             <transactionManager type="JDBC"/>
             <dataSource type="POOLED">
                 <property name="driver" value="com.mysql.jdbc.Driver"/>
-                <property name="url" value="jdbc:mysql://120.24.99.52:3306/mybatis?useUnicode=true&amp;characterEncoding=UTF-8"/>
-                <property name="username" value="typinf"/>
-                <property name="password" value="Typinf!233"/>
+                <property name="url" value="jdbc:mysql://localhost:3306/mybatis?useUnicode=true&amp;characterEncoding=UTF-8"/>
+                <property name="username" value="root"/>
+                <property name="password" value="root"/>
             </dataSource>
         </environment>
     </environments>
